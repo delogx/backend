@@ -1,7 +1,8 @@
 package main
 
-import "fmt"
+import "backend/src/initializers"
 
 func main() {
-	fmt.Println("Hello world")
+	initializers.LoadEnv()
+	initializers.StartServer()
 }

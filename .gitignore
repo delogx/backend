@@ -1,0 +1,47 @@
+# Binaries for programs and plugins
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Test binary, built with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# Dependency directories (remove the line below if you want to use a module-aware build)
+/vendor/
+
+# go run
+/build/
+
+# Output directory
+/bin/
+
+# Local directory for test output
+/_test/
+
+# VSCode directories
+.vscode/
+
+# Exclude vscode settings files
+.vscode/
+*.code-workspace
+
+# Exclude user-specific VSCode settings
+.vscode/
+.idea/
+*.iml
+
+# Exclude Go specific folder configuration
+.idea/
+
+# Exclude the local .vscode-server folder in a Go project
+.vscode-server/
+
+# Exclude the .history folder in a Go project
+.history/
+
+.env
+tmp
