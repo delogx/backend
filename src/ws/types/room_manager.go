@@ -1,6 +1,7 @@
 package types
 
 import (
+	"log"
 	"sync"
 
 	"github.com/gorilla/websocket"
@@ -37,5 +38,22 @@ func (rm *RoomManager) LeaveRoom(roomID string, conn *websocket.Conn) {
 	delete(rm.rooms[roomID], conn)
 	if len(rm.rooms[roomID]) == 0 {
 		delete(rm.rooms, roomID)
+	}
+}
+
+func (rm *RoomManager) Broadcast(roomID string, messageType int, message []byte, currentConn *websocket.Conn) {
+	rm.mu.Lock()
+	defer rm.mu.Unlock()
+	clients, ok := rm.rooms[roomID]
+	if !ok {
+		return
+	}
+	for conn := range clients {
+		if conn == currentConn {
+			continue
+		}
+		if err := conn.WriteMessage(messageType, message); err != nil {
+			log.Println("Error broadcasting message to room", roomID, ":", err)
+		}
 	}
 }

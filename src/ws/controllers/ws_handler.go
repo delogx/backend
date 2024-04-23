@@ -36,33 +36,39 @@ func WSHandler(c *gin.Context, rm *types.RoomManager) {
 
 	go func() {
 		for {
-			messageType, message, err := conn.ReadMessage()
-			if err != nil {
-				log.Println("Error reading message: ", err)
-				break
-			}
 
-			switch messageType {
-			case websocket.TextMessage:
-				// Handle text messages
-				log.Println("Received text message:", string(message))
-				if string(message) == "ping" {
-					if err := conn.WriteMessage(websocket.TextMessage, []byte("pong")); err != nil {
-						log.Println("Error sending pong message: ", err)
-						return
-					}
-				} else {
-					log.Println("Received text message: ", string(message))
-				}
-			case websocket.CloseMessage:
-				// Handle close messages
-				log.Println("Received close message")
-				rm.LeaveRoom(roomID, conn)
-				return
-			}
 		}
 	}()
 
 	for {
+		readMessage(conn, rm, roomID)
+	}
+}
+
+func readMessage(conn *websocket.Conn, rm *types.RoomManager, roomID string) {
+	messageType, message, err := conn.ReadMessage()
+	if err != nil {
+		log.Println("Error reading message: ", err)
+		return
+	}
+
+	switch messageType {
+	case websocket.TextMessage:
+		// Handle text messages
+		log.Println("Received text message:", string(message))
+		if string(message) == "ping" {
+			if err := conn.WriteMessage(websocket.TextMessage, []byte("pong")); err != nil {
+				log.Println("Error sending pong message: ", err)
+				return
+			}
+		} else {
+			log.Println("Received text message in room", roomID, ":", string(message))
+			rm.Broadcast(roomID, messageType, message, conn)
+		}
+	case websocket.CloseMessage:
+		// Handle close messages
+		log.Println("Received close message")
+		rm.LeaveRoom(roomID, conn)
+		return
 	}
 }
