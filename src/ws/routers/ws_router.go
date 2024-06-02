@@ -9,7 +9,7 @@ import (
 
 func Setup(r *gin.RouterGroup) {
 	rm := types.NewRoomManager()
-	r.GET("/:roomId", func(ctx *gin.Context) {
+	r.GET("/:userId", func(ctx *gin.Context) {
 		controllers.WSHandler(ctx, rm)
 	})
 }

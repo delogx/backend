@@ -28,47 +28,46 @@ func WSHandler(c *gin.Context, rm *types.RoomManager) {
 
 	defer func() {
 		log.Println("Client disconnected")
-		conn.Close()
+		// conn.Close()
 	}()
 
-	roomID := c.Param("roomId")
-	rm.JoinRoom(roomID, conn)
-
-	go func() {
-		for {
-
-		}
-	}()
-
-	for {
-		readMessage(conn, rm, roomID)
-	}
+	userId := c.Param("userId")
+	rm.JoinRoom(userId, conn)
+	readMessage(conn, rm, userId)
 }
 
 func readMessage(conn *websocket.Conn, rm *types.RoomManager, roomID string) {
-	messageType, message, err := conn.ReadMessage()
-	if err != nil {
-		log.Println("Error reading message: ", err)
-		return
-	}
-
-	switch messageType {
-	case websocket.TextMessage:
-		// Handle text messages
-		log.Println("Received text message:", string(message))
-		if string(message) == "ping" {
-			if err := conn.WriteMessage(websocket.TextMessage, []byte("pong")); err != nil {
-				log.Println("Error sending pong message: ", err)
+	for {
+		messageType, message, err := conn.ReadMessage()
+		if err != nil {
+			if websocket.IsCloseError(err, websocket.CloseNormalClosure, websocket.CloseGoingAway) {
+				// Connection closed gracefully
+				log.Println("Connection closed gracefully")
+				rm.LeaveRoom(roomID, conn)
 				return
 			}
-		} else {
-			log.Println("Received text message in room", roomID, ":", string(message))
-			rm.Broadcast(roomID, messageType, message, conn)
+			log.Println("Error reading message: ", err)
+			// Handle other errors here if necessary
+			return
 		}
-	case websocket.CloseMessage:
-		// Handle close messages
-		log.Println("Received close message")
-		rm.LeaveRoom(roomID, conn)
-		return
+
+		switch messageType {
+		case websocket.TextMessage:
+			// Handle text messages
+			log.Println("Received text message:", string(message))
+			if string(message) == "ping" {
+				if err := conn.WriteMessage(websocket.TextMessage, []byte("pong")); err != nil {
+					log.Println("Error sending pong message: ", err)
+					return
+				}
+			} else {
+				rm.Broadcast(roomID, messageType, message, conn)
+			}
+		case websocket.CloseMessage:
+			// Handle close messages
+			log.Println("Received close message")
+			rm.LeaveRoom(roomID, conn)
+			return
+		}
 	}
 }

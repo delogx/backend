@@ -1,8 +1,12 @@
 package main
 
-import "backend/src/initializers"
+import (
+	"backend/db"
+	"backend/src/initializers"
+)
 
 func main() {
 	initializers.LoadEnv()
+	db.ConnectDB()
 	initializers.StartServer()
 }
