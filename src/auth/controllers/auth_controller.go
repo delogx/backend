@@ -4,13 +4,13 @@ import (
 	"backend/db"
 	"backend/src/auth/dtos"
 	"backend/src/auth/services"
-	mail_service "backend/src/mail/services"
-	"backend/src/app_users/models"
+	"backend/src/dashboard_users/models"
 	"backend/src/utils"
 	"fmt"
+	"net/http"
 	"time"
 
-	"net/http"
+	mail_service "backend/src/mail/services"
 
 	"github.com/gin-gonic/gin"
 )
@@ -33,7 +33,7 @@ func Register(ctx *gin.Context) {
 	if ok := utils.ValidateRequestBody(ctx, &registerData); !ok {
 		return
 	}
-	appUser, err := services.Register(registerData)
+	dashboardUser, err := services.Register(registerData)
 	if err != nil {
 		ctx.JSON(400, "email or phone already exists")
 		return
@@ -46,20 +46,20 @@ func Register(ctx *gin.Context) {
 		VerifiedEmailAt string `json:"verified_email_at"`
 	}
 	result := Result{
-		ID:              appUser.ID,
-		Name:            appUser.Name,
-		Email:           appUser.Email,
-		CreatedAt:       appUser.CreatedAt.String(),
-		VerifiedEmailAt: appUser.VerifiedEmailAt.String(),
+		ID:              dashboardUser.ID,
+		Name:            dashboardUser.Name,
+		Email:           dashboardUser.Email,
+		CreatedAt:       dashboardUser.CreatedAt.String(),
+		VerifiedEmailAt: dashboardUser.VerifiedEmailAt.String(),
 	}
-	emailVerificationToken, err := services.GenerateVerificationEmailToken(appUser.ID)
+	emailVerificationToken, err := services.GenerateVerificationEmailToken(dashboardUser.ID)
 	if err == nil {
-		fmt.Println("email_verification token", appUser.ID, appUser.Email, appUser.Name, emailVerificationToken)
+		fmt.Println("email_verification token", dashboardUser.ID, dashboardUser.Email, dashboardUser.Name, emailVerificationToken)
 		go mail_service.SendMail(mail_service.Mail{
-			To:      appUser.Email,
+			To:      dashboardUser.Email,
 			From:    "admin@delogx.com",
 			Subject: "Email Verification",
-			Content: fmt.Sprintf("Hi %s, this email is for verifying your identity.", appUser.Name),
+			Content: fmt.Sprintf("Hi %s, this email is for verifying your identity.", dashboardUser.Name),
 		})
 	}
 	ctx.JSON(http.StatusOK, &result)
@@ -81,7 +81,7 @@ func VerifyEmail(ctx *gin.Context) {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	db.DB.Select("verified_email_at").Updates(&models.AppUser{
+	db.DB.Select("verified_email_at").Updates(&models.DashboardUser{
 		ID:              uint(requestUser.ID),
 		VerifiedEmailAt: time.Now(),
 	})
@@ -94,5 +94,5 @@ func Me(ctx *gin.Context) {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"app_user": &requestUser})
+	ctx.JSON(http.StatusOK, gin.H{"dashboard_user": &requestUser})
 }

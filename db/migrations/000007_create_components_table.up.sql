@@ -3,5 +3,6 @@ CREATE TABLE components (
     tag_name VARCHAR(25),
     attributes jsonb,
     text_content TEXT,
-    children jsonb
+    children jsonb,
+    app_id INTEGER references apps(id)
 );

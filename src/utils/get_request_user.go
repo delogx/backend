@@ -6,12 +6,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GetRequestUser(ctx *gin.Context) (*types.RequestAppUser, bool) {
-	user, ok := ctx.Get("app_user")
+func GetRequestUser(ctx *gin.Context) (*types.RequestDashboardUser, bool) {
+	user, ok := ctx.Get("dashboard_user")
 	if !ok {
 		return nil, false
 	}
-	requestUser, ok := user.(types.RequestAppUser)
+	requestUser, ok := user.(types.RequestDashboardUser)
 	if !ok {
 		return nil, false
 	}

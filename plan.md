@@ -1,7 +1,7 @@
 ## tables needed
 - users
 - apps
-- app_users
+- dashboard_users
 - sessions
 - page_visits
 - components
@@ -16,7 +16,7 @@
 - created_at timestamp default now
 - updated_at timestamp default now
 
-## app_users
+## dashboard_users
 - id auto increment
 - email string
 - name string
@@ -36,7 +36,7 @@
 ## sessions
 - id
 - ip
-- app_user_id
+- dashboard_user_id
 - created_at
 
 ## page_visits

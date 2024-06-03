@@ -21,7 +21,7 @@ func AuthMiddleware() gin.HandlerFunc {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		user := (*claims)["app_user"].(map[string]any)
+		user := (*claims)["dashboard_user"].(map[string]any)
 		id, ok := user["ID"].(float64)
 		if !ok {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
@@ -41,13 +41,13 @@ func AuthMiddleware() gin.HandlerFunc {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		requestUser := types.RequestAppUser{
+		requestUser := types.RequestDashboardUser{
 			ID:      id,
 			Email:   email,
 			Name:    name,
 			IsAdmin: is_admin,
 		}
-		ctx.Set("app_user", requestUser)
+		ctx.Set("dashboard_user", requestUser)
 		ctx.Next()
 	}
 }

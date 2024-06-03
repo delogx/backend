@@ -6,7 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type AppUser struct {
+type DashboardUser struct {
 	gorm.Model
 	ID              uint      `gorm:"primaryKey"`
 	Email           string    `gorm:"not null"`
@@ -19,7 +19,7 @@ type AppUser struct {
 	VerifiedEmailAt time.Time `gorm:"nullable"`
 }
 
-type AppUserWithPassword struct {
+type DashboardUserWithPassword struct {
 	gorm.Model
 	ID              uint      `gorm:"primaryKey"`
 	Email           string    `gorm:"not null"`
@@ -32,6 +32,6 @@ type AppUserWithPassword struct {
 	VerifiedEmailAt time.Time `gorm:"nullable"`
 }
 
-func (table AppUserWithPassword) TableName() string {
-	return "users"
+func (table DashboardUserWithPassword) TableName() string {
+	return "dashboard_users"
 }

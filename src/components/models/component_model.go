@@ -10,5 +10,6 @@ type Component struct {
 	TagName     string      `gorm:"not null"`
 	Attributes  types.JSONB `gorm:"type:json;nullable"`
 	TextContent string      `gorm:"nullable"`
-	Children types.JSONB `gorm:"type:json;nullable"`
+	Children    types.JSONB `gorm:"type:json;nullable"`
+	AppID       uint        `gorm:"not nullable"`
 }

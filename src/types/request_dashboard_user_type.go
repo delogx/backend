@@ -1,6 +1,6 @@
 package types
 
-type RequestAppUser struct {
+type RequestDashboardUser struct {
 	ID      float64
 	Name    string
 	Email   string

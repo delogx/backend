@@ -2,9 +2,9 @@ package services
 
 import (
 	"backend/db"
-	"backend/src/app_users/models"
 	"backend/src/auth/dtos"
 	auth_utils "backend/src/auth/utils"
+	"backend/src/dashboard_users/models"
 	"backend/src/types"
 	"backend/src/utils"
 	"fmt"
@@ -13,38 +13,38 @@ import (
 )
 
 func Login(dto dtos.LoginDTO) (string, error) {
-	var appUser, err = GetAppUserWithPass(dto)
+	var dashboardUser, err = GetdashboardUserWithPass(dto)
 	if err != nil {
 		return "", fmt.Errorf("invalid credentials")
 	}
-	if ok := auth_utils.CheckPasswordHash(appUser.Password, dto.Password); !ok {
+	if ok := auth_utils.CheckPasswordHash(dashboardUser.Password, dto.Password); !ok {
 		return "", fmt.Errorf("invalid credentials")
 	}
-	return GenerateAccessToken(AccessTokenAppUser{
-		ID:    appUser.ID,
-		Email: appUser.Email,
-		Name:  appUser.Name,
+	return GenerateAccessToken(AccessTokendashboardUser{
+		ID:    dashboardUser.ID,
+		Email: dashboardUser.Email,
+		Name:  dashboardUser.Name,
 	})
 }
 
 func AdminLogin(dto dtos.LoginDTO) (string, error) {
-	var appUser, err = GetAppUserWithPass(dto)
+	var dashboardUser, err = GetdashboardUserWithPass(dto)
 	if err != nil {
 		return "", fmt.Errorf("invalid credentials")
 	}
-	if ok := auth_utils.CheckPasswordHash(appUser.Password, dto.Password); !ok {
+	if ok := auth_utils.CheckPasswordHash(dashboardUser.Password, dto.Password); !ok {
 		return "", fmt.Errorf("invalid credentials")
 	}
-	return GenerateAccessToken(AccessTokenAppUser{
-		ID:      appUser.ID,
-		Email:   appUser.Email,
-		Name:    appUser.Name,
+	return GenerateAccessToken(AccessTokendashboardUser{
+		ID:      dashboardUser.ID,
+		Email:   dashboardUser.Email,
+		Name:    dashboardUser.Name,
 		IsAdmin: false,
 	})
 }
 
-func GetAppUserWithPass(dto dtos.LoginDTO) (*models.AppUserWithPassword, error) {
-	var user models.AppUserWithPassword
+func GetdashboardUserWithPass(dto dtos.LoginDTO) (*models.DashboardUserWithPassword, error) {
+	var user models.DashboardUserWithPassword
 	db.DB.Where("email = ? OR phone_number = ?", dto.Username, dto.Username).First(&user)
 	if user.ID == 0 {
 		return nil, fmt.Errorf("app user not found")
@@ -52,22 +52,22 @@ func GetAppUserWithPass(dto dtos.LoginDTO) (*models.AppUserWithPassword, error) 
 	return &user, nil
 }
 
-type AccessTokenAppUser struct {
+type AccessTokendashboardUser struct {
 	ID      uint
 	Email   string
 	Name    string
 	IsAdmin bool
 }
 
-func GenerateAccessToken(appUser AccessTokenAppUser) (string, error) {
-	requestAppUser := types.RequestAppUser{
-		ID:      float64(appUser.ID),
-		Email:   appUser.Email,
-		Name:    appUser.Name,
-		IsAdmin: appUser.IsAdmin,
+func GenerateAccessToken(dashboardUser AccessTokendashboardUser) (string, error) {
+	requestdashboardUser := types.RequestDashboardUser{
+		ID:      float64(dashboardUser.ID),
+		Email:   dashboardUser.Email,
+		Name:    dashboardUser.Name,
+		IsAdmin: dashboardUser.IsAdmin,
 	}
 	claims := jwt.MapClaims{
-		"app_user": requestAppUser,
+		"dashboard_user": requestdashboardUser,
 	}
 	accessToken, err := auth_utils.GenerateJWT(claims)
 	if err != nil {
@@ -76,29 +76,29 @@ func GenerateAccessToken(appUser AccessTokenAppUser) (string, error) {
 	return accessToken, nil
 }
 
-func Register(dto dtos.RegisterDTO) (*models.AppUserWithPassword, error) {
+func Register(dto dtos.RegisterDTO) (*models.DashboardUserWithPassword, error) {
 	hashedPassword, err := auth_utils.HashPassword(dto.Password)
 	if err != nil {
 		return nil, err
 	}
 
-	appUser := models.AppUserWithPassword{
+	dashboardUser := models.DashboardUserWithPassword{
 		Name:     dto.Name,
 		Password: hashedPassword,
 		IsAdmin:  false,
 	}
-	result := db.DB.Create(&appUser)
+	result := db.DB.Create(&dashboardUser)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	return &appUser, nil
+	return &dashboardUser, nil
 }
 
-func GenerateVerificationEmailToken(appUserId uint) (string, error) {
+func GenerateVerificationEmailToken(dashboardUserId uint) (string, error) {
 	claims := jwt.MapClaims{
 		"isEmailVerificationToken": true,
-		"userId":                  appUserId,
+		"userId":                   dashboardUserId,
 	}
 	token, err := auth_utils.GenerateJWT(claims)
 	if err != nil {
@@ -107,7 +107,7 @@ func GenerateVerificationEmailToken(appUserId uint) (string, error) {
 	return token, nil
 }
 
-func VerifyVerificationToken(appUserId float64, verificationToken string) bool {
+func VerifyVerificationToken(dashboardUserId float64, verificationToken string) bool {
 	claims, ok := utils.ParseJWT(verificationToken)
 	if !ok || claims == nil {
 		return false
@@ -117,7 +117,7 @@ func VerifyVerificationToken(appUserId float64, verificationToken string) bool {
 		return false
 	}
 	tokenUserId, ok := (*claims)["userId"].(float64)
-	if !ok || tokenUserId != appUserId {
+	if !ok || tokenUserId != dashboardUserId {
 		return false
 	}
 	return true
