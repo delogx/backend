@@ -13,7 +13,7 @@ func GetRequestBody[T interface{}](ctx *gin.Context, v *T) bool {
 	} else if err := ctx.ShouldBindJSON(&v); err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return false
-	}
+	} 
 	ctx.Set("RequestBody", *v)
 	return true
 }

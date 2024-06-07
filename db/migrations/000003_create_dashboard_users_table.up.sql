@@ -7,6 +7,7 @@ CREATE TABLE dashboard_users (
     app_id INTEGER REFERENCES apps(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    deleted_at TIMESTAMP,
     verified_email_at TIMESTAMP,
     CONSTRAINT unique_email_app_id UNIQUE (email, app_id)
 );

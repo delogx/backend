@@ -35,7 +35,7 @@ func Register(ctx *gin.Context) {
 	}
 	dashboardUser, err := services.Register(registerData)
 	if err != nil {
-		ctx.JSON(400, "email or phone already exists")
+		ctx.JSON(400, err)
 		return
 	}
 	type Result struct {
@@ -43,14 +43,13 @@ func Register(ctx *gin.Context) {
 		Name            string `json:"name"`
 		Email           string `json:"email"`
 		CreatedAt       string `json:"created_at"`
-		VerifiedEmailAt string `json:"verified_email_at"`
+		VerifiedEmailAt string `json:"verified_email_a"`
 	}
 	result := Result{
 		ID:              dashboardUser.ID,
 		Name:            dashboardUser.Name,
 		Email:           dashboardUser.Email,
 		CreatedAt:       dashboardUser.CreatedAt.String(),
-		VerifiedEmailAt: dashboardUser.VerifiedEmailAt.String(),
 	}
 	emailVerificationToken, err := services.GenerateVerificationEmailToken(dashboardUser.ID)
 	if err == nil {
@@ -81,9 +80,10 @@ func VerifyEmail(ctx *gin.Context) {
 		ctx.AbortWithStatus(http.StatusUnauthorized)
 		return
 	}
+	now := time.Now()
 	db.DB.Select("verified_email_at").Updates(&models.DashboardUser{
 		ID:              uint(requestUser.ID),
-		VerifiedEmailAt: time.Now(),
+		VerifiedEmailAt: &now,
 	})
 	ctx.JSON(http.StatusOK, gin.H{"message": "success"})
 }

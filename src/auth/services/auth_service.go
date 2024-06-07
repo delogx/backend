@@ -1,4 +1,4 @@
-package services
+	package services
 
 import (
 	"backend/db"
@@ -47,7 +47,7 @@ func GetdashboardUserWithPass(dto dtos.LoginDTO) (*models.DashboardUserWithPassw
 	var user models.DashboardUserWithPassword
 	db.DB.Where("email = ? OR phone_number = ?", dto.Username, dto.Username).First(&user)
 	if user.ID == 0 {
-		return nil, fmt.Errorf("app user not found")
+		return nil, fmt.Errorf("dashboard user not found")
 	}
 	return &user, nil
 }
@@ -84,6 +84,7 @@ func Register(dto dtos.RegisterDTO) (*models.DashboardUserWithPassword, error) {
 
 	dashboardUser := models.DashboardUserWithPassword{
 		Name:     dto.Name,
+		Email: dto.Email,
 		Password: hashedPassword,
 		IsAdmin:  false,
 	}

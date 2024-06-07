@@ -4,5 +4,6 @@ CREATE TABLE components (
     attributes jsonb,
     text_content TEXT,
     children jsonb,
-    app_id INTEGER references apps(id)
+    app_id INTEGER references apps(id),
+    deleted_at TIMESTAMP
 );
