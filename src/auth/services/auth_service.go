@@ -1,41 +1,41 @@
-	package services
+package services
 
 import (
-	"backend/db"
+	auth "backend/src/auth"
 	"backend/src/auth/dtos"
 	auth_utils "backend/src/auth/utils"
-	"backend/src/dashboard_users/models"
+	"backend/src/common/models"
+	"backend/src/common/utils"
 	"backend/src/types"
-	"backend/src/utils"
 	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func Login(dto dtos.LoginDTO) (string, error) {
-	var dashboardUser, err = GetdashboardUserWithPass(dto)
+func Login(dto dtos.LoginDTO, provider auth.Provider) (string, error) {
+	var dashboardUser, err = provider.DashboardUserService.FindOneWithPass(dto.Email)
 	if err != nil {
 		return "", fmt.Errorf("invalid credentials")
 	}
 	if ok := auth_utils.CheckPasswordHash(dashboardUser.Password, dto.Password); !ok {
 		return "", fmt.Errorf("invalid credentials")
 	}
-	return GenerateAccessToken(AccessTokendashboardUser{
+	return generateAccessToken(accessTokendashboardUser{
 		ID:    dashboardUser.ID,
 		Email: dashboardUser.Email,
 		Name:  dashboardUser.Name,
 	})
 }
 
-func AdminLogin(dto dtos.LoginDTO) (string, error) {
-	var dashboardUser, err = GetdashboardUserWithPass(dto)
+func AdminLogin(dto dtos.LoginDTO, provider auth.Provider) (string, error) {
+	var dashboardUser, err = provider.DashboardUserService.FindOneWithPass(dto.Email)
 	if err != nil {
 		return "", fmt.Errorf("invalid credentials")
 	}
 	if ok := auth_utils.CheckPasswordHash(dashboardUser.Password, dto.Password); !ok {
 		return "", fmt.Errorf("invalid credentials")
 	}
-	return GenerateAccessToken(AccessTokendashboardUser{
+	return generateAccessToken(accessTokendashboardUser{
 		ID:      dashboardUser.ID,
 		Email:   dashboardUser.Email,
 		Name:    dashboardUser.Name,
@@ -43,23 +43,23 @@ func AdminLogin(dto dtos.LoginDTO) (string, error) {
 	})
 }
 
-func GetdashboardUserWithPass(dto dtos.LoginDTO) (*models.DashboardUserWithPassword, error) {
-	var user models.DashboardUserWithPassword
-	db.DB.Where("email = ? OR phone_number = ?", dto.Username, dto.Username).First(&user)
-	if user.ID == 0 {
-		return nil, fmt.Errorf("dashboard user not found")
-	}
-	return &user, nil
-}
+// func GetDashboardUserWithPass(dto dtos.LoginDTO) (*models.DashboardUserWithPassword, error) {
+// 	var user models.DashboardUserWithPassword
+// 	db.DB.Where("email = ?", dto.Email).First(&user)
+// 	if user.ID == 0 {
+// 		return nil, fmt.Errorf("dashboard user not found")
+// 	}
+// 	return &user, nil
+// }
 
-type AccessTokendashboardUser struct {
+type accessTokendashboardUser struct {
 	ID      uint
 	Email   string
 	Name    string
 	IsAdmin bool
 }
 
-func GenerateAccessToken(dashboardUser AccessTokendashboardUser) (string, error) {
+func generateAccessToken(dashboardUser accessTokendashboardUser) (string, error) {
 	requestdashboardUser := types.RequestDashboardUser{
 		ID:      float64(dashboardUser.ID),
 		Email:   dashboardUser.Email,
@@ -76,24 +76,12 @@ func GenerateAccessToken(dashboardUser AccessTokendashboardUser) (string, error)
 	return accessToken, nil
 }
 
-func Register(dto dtos.RegisterDTO) (*models.DashboardUserWithPassword, error) {
+func Register(dto dtos.RegisterDTO, provider auth.Provider) (*models.DashboardUserWithPassword, error) {
 	hashedPassword, err := auth_utils.HashPassword(dto.Password)
 	if err != nil {
 		return nil, err
 	}
-
-	dashboardUser := models.DashboardUserWithPassword{
-		Name:     dto.Name,
-		Email: dto.Email,
-		Password: hashedPassword,
-		IsAdmin:  false,
-	}
-	result := db.DB.Create(&dashboardUser)
-	if result.Error != nil {
-		return nil, result.Error
-	}
-
-	return &dashboardUser, nil
+	return provider.DashboardUserService.Create(dto.Name, dto.Email, hashedPassword)
 }
 
 func GenerateVerificationEmailToken(dashboardUserId uint) (string, error) {

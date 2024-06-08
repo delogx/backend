@@ -2,7 +2,7 @@ package middlewares
 
 import (
 	"backend/src/types"
-	"backend/src/utils"
+	"backend/src/common/utils"
 	"net/http"
 	"strings"
 

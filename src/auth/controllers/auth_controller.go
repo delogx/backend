@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"backend/db"
+	auth "backend/src/auth"
 	"backend/src/auth/dtos"
 	"backend/src/auth/services"
-	"backend/src/dashboard_users/models"
-	"backend/src/utils"
+	"backend/src/common/models"
+	"backend/src/common/utils"
 	"fmt"
 	"net/http"
 	"time"
@@ -15,12 +16,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func Login(ctx *gin.Context) {
+func Login(ctx *gin.Context, provider auth.Provider) {
 	var loginData dtos.LoginDTO
 	if ok := utils.ValidateRequestBody(ctx, &loginData); !ok {
 		return
 	}
-	accessToken, err := services.Login(loginData)
+	accessToken, err := services.Login(loginData, provider)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -28,12 +29,12 @@ func Login(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{"access_token": accessToken})
 }
 
-func Register(ctx *gin.Context) {
+func Register(ctx *gin.Context, provider auth.Provider) {
 	var registerData dtos.RegisterDTO
 	if ok := utils.ValidateRequestBody(ctx, &registerData); !ok {
 		return
 	}
-	dashboardUser, err := services.Register(registerData)
+	dashboardUser, err := services.Register(registerData, provider)
 	if err != nil {
 		ctx.JSON(400, err)
 		return
@@ -43,13 +44,13 @@ func Register(ctx *gin.Context) {
 		Name            string `json:"name"`
 		Email           string `json:"email"`
 		CreatedAt       string `json:"created_at"`
-		VerifiedEmailAt string `json:"verified_email_a"`
+		VerifiedEmailAt string `json:"verified_email_at"`
 	}
 	result := Result{
-		ID:              dashboardUser.ID,
-		Name:            dashboardUser.Name,
-		Email:           dashboardUser.Email,
-		CreatedAt:       dashboardUser.CreatedAt.String(),
+		ID:        dashboardUser.ID,
+		Name:      dashboardUser.Name,
+		Email:     dashboardUser.Email,
+		CreatedAt: dashboardUser.CreatedAt.String(),
 	}
 	emailVerificationToken, err := services.GenerateVerificationEmailToken(dashboardUser.ID)
 	if err == nil {

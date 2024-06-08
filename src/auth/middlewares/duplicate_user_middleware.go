@@ -3,8 +3,8 @@ package middlewares
 import (
 	"backend/db"
 	"backend/src/auth/dtos"
-	"backend/src/dashboard_users/models"
-	"backend/src/utils"
+	"backend/src/common/models"
+	"backend/src/common/utils"
 
 	"github.com/gin-gonic/gin"
 )
