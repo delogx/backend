@@ -1,11 +1,12 @@
 package routers
 
-import "github.com/gin-gonic/gin"
+import (
+	module "backend/src/apps"
+	"backend/src/apps/controllers"
 
-func Setup(r *gin.RouterGroup) {
-	r.GET("/", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "hello from apps service",
-		})
-	})
+	"github.com/gin-gonic/gin"
+)
+
+func Setup(r *gin.RouterGroup, provider module.Provider) {
+	r.POST("", provider.AuthService.AuthMiddleware(), func(ctx *gin.Context) { controllers.Create(ctx, provider) })
 }

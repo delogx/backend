@@ -1,7 +1,7 @@
 package models
 
 import (
-	"backend/src/types"
+	"backend/src/common/types"
 	"gorm.io/gorm"
 )
 

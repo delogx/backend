@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"backend/src/types"
+	"backend/src/common/types"
 
 	"github.com/gin-gonic/gin"
 )

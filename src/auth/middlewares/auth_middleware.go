@@ -1,7 +1,7 @@
 package middlewares
 
 import (
-	"backend/src/types"
+	"backend/src/common/types"
 	"backend/src/common/utils"
 	"net/http"
 	"strings"
@@ -25,6 +25,7 @@ func AuthMiddleware() gin.HandlerFunc {
 		id, ok := user["ID"].(float64)
 		if !ok {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
+			return
 		}
 		name, ok := user["Name"].(string)
 		if !ok {

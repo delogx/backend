@@ -6,7 +6,7 @@ import (
 	auth_utils "backend/src/auth/utils"
 	"backend/src/common/models"
 	"backend/src/common/utils"
-	"backend/src/types"
+	"backend/src/common/types"
 	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
