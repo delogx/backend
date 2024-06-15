@@ -8,5 +8,10 @@ import (
 )
 
 func Setup(r *gin.RouterGroup, provider module.Provider) {
-	r.POST("", provider.AuthService.AuthMiddleware(), func(ctx *gin.Context) { controllers.Create(ctx, provider) })
+	r.POST(
+		"",
+		provider.AuthService.AuthMiddleware(),
+		provider.AuthService.VerifiedDashboardUserMiddleware(provider.DB),
+		func(ctx *gin.Context) { controllers.Create(ctx, provider) },
+	)
 }

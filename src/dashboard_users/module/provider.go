@@ -1,6 +1,8 @@
 package module
 
-import "backend/src/common/models"
+import (
+	"backend/src/common/models"
+)
 
 type AppsService interface {
 	FindOne() models.App
