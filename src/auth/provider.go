@@ -6,11 +6,12 @@ import (
 )
 
 type DashboardUserService interface {
-	FindOneWithPass(email string) (*models.DashboardUserWithPassword, error)
-	FindOne(email string, db types.DB) (*models.DashboardUser, error)
-	Create(name string, email string, hashedPassword string) (*models.DashboardUserWithPassword, error)
+	FindOneWithPass(email string, db types.DB) (*models.DashboardUserWithPassword, error)
+	FindOne(db types.DB) (*models.DashboardUser, error)
+	Create(name string, email string, hashedPassword string, db types.DB) (*models.DashboardUserWithPassword, error)
 }
 
 type Provider struct {
 	DashboardUserService DashboardUserService
+	DB                   types.DB
 }

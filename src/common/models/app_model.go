@@ -9,4 +9,5 @@ type App struct {
 	HostName string `gorm:"not null"`
 
 	DashboardUsers []*DashboardUser `gorm:"many2many:app_dashboard_users"`
+	Admins         []*AppAdmin      `gorm:""`
 }

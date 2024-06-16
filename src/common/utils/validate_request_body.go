@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"backend/src/common/utils/validators"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -19,6 +20,7 @@ func ValidateRequestBody[T interface{}](ctx *gin.Context, v *T) bool {
 	validate.RegisterTagNameFunc(func(field reflect.StructField) string {
 		return field.Tag.Get("json")
 	})
+	validate.RegisterValidation("hostname", validators.IsValidHostName)
 
 	if ok := GetRequestBody(ctx, v); !ok {
 		return false

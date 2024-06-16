@@ -5,15 +5,15 @@ import (
 	"backend/src/auth/dtos"
 	auth_utils "backend/src/auth/utils"
 	"backend/src/common/models"
-	"backend/src/common/utils"
 	"backend/src/common/types"
+	"backend/src/common/utils"
 	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
 )
 
 func Login(dto dtos.LoginDTO, provider auth.Provider) (string, error) {
-	var dashboardUser, err = provider.DashboardUserService.FindOneWithPass(dto.Email)
+	var dashboardUser, err = provider.DashboardUserService.FindOneWithPass(dto.Email, provider.DB)
 	if err != nil {
 		return "", fmt.Errorf("invalid credentials")
 	}
@@ -28,7 +28,7 @@ func Login(dto dtos.LoginDTO, provider auth.Provider) (string, error) {
 }
 
 func AdminLogin(dto dtos.LoginDTO, provider auth.Provider) (string, error) {
-	var dashboardUser, err = provider.DashboardUserService.FindOneWithPass(dto.Email)
+	var dashboardUser, err = provider.DashboardUserService.FindOneWithPass(dto.Email, provider.DB)
 	if err != nil {
 		return "", fmt.Errorf("invalid credentials")
 	}
@@ -42,15 +42,6 @@ func AdminLogin(dto dtos.LoginDTO, provider auth.Provider) (string, error) {
 		IsAdmin: false,
 	})
 }
-
-// func GetDashboardUserWithPass(dto dtos.LoginDTO) (*models.DashboardUserWithPassword, error) {
-// 	var user models.DashboardUserWithPassword
-// 	db.DB.Where("email = ?", dto.Email).First(&user)
-// 	if user.ID == 0 {
-// 		return nil, fmt.Errorf("dashboard user not found")
-// 	}
-// 	return &user, nil
-// }
 
 type accessTokendashboardUser struct {
 	ID      uint
@@ -81,7 +72,7 @@ func Register(dto dtos.RegisterDTO, provider auth.Provider) (*models.DashboardUs
 	if err != nil {
 		return nil, err
 	}
-	return provider.DashboardUserService.Create(dto.Name, dto.Email, hashedPassword)
+	return provider.DashboardUserService.Create(dto.Name, dto.Email, hashedPassword, provider.DB)
 }
 
 func GenerateVerificationEmailToken(dashboardUserId uint) (string, error) {

@@ -17,7 +17,7 @@ func VerifiedDashboardUserMiddleware(dashboardUserService auth.DashboardUserServ
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		user, err := dashboardUserService.FindOne(requestUser.Email, db.Select("id,verified_email_at"))
+		user, err := dashboardUserService.FindOne(db.Select("id,verified_email_at").Where("email = ?", requestUser.Email))
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 		}
