@@ -17,13 +17,12 @@ func (sc *Service) FindOneWithPass(email string, db types.DB) (*models.Dashboard
 	return &user, nil
 }
 
-func (sc *Service) FindOne(db types.DB) (*models.DashboardUser, error) {
-	var user models.DashboardUser
-	db.First(&user)
+func (sc *Service) FindOne(db types.DB, user *models.DashboardUser) (*models.DashboardUser, error) {
+	db.Where(user).First(&user)
 	if user.ID == 0 {
 		return nil, fmt.Errorf("dashboard user not found")
 	}
-	return &user, nil
+	return user, nil
 }
 
 func (sc *Service) Create(name string, email string, hashedPassword string, db types.DB) (*models.DashboardUserWithPassword, error) {

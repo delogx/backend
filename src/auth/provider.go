@@ -7,7 +7,7 @@ import (
 
 type DashboardUserService interface {
 	FindOneWithPass(email string, db types.DB) (*models.DashboardUserWithPassword, error)
-	FindOne(db types.DB) (*models.DashboardUser, error)
+	FindOne(db types.DB, user *models.DashboardUser) (*models.DashboardUser, error)
 	Create(name string, email string, hashedPassword string, db types.DB) (*models.DashboardUserWithPassword, error)
 }
 

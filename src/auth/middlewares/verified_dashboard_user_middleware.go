@@ -2,6 +2,7 @@ package middlewares
 
 import (
 	"backend/src/auth"
+	"backend/src/common/models"
 	"backend/src/common/types"
 	"backend/src/common/utils"
 	"net/http"
@@ -17,7 +18,7 @@ func VerifiedDashboardUserMiddleware(dashboardUserService auth.DashboardUserServ
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 			return
 		}
-		user, err := dashboardUserService.FindOne(db.Select("id,verified_email_at").Where("email = ?", requestUser.Email))
+		user, err := dashboardUserService.FindOne(db, &models.DashboardUser{Email: requestUser.Email})
 		if err != nil {
 			ctx.AbortWithStatus(http.StatusUnauthorized)
 		}

@@ -40,11 +40,10 @@ func (*Service) Create(Name string, HostName string, UserID uint, db types.DB) (
 	return &app, nil
 }
 
-func (*Service) FindOne(db types.DB) (*models.App, error) {
-	var app models.App
-	db.First(&app)
+func (*Service) FindOne(db types.DB, app *models.App) (*models.App, error) {
+	db.Where(app).First(&app)
 	if app.ID == 0 {
 		return nil, fmt.Errorf("app not found")
 	}
-	return &app, nil
+	return app, nil
 }

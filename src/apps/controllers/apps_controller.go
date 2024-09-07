@@ -4,6 +4,7 @@ import (
 	"backend/src/apps"
 	"backend/src/apps/dtos"
 	"backend/src/apps/services"
+	"backend/src/common/models"
 	"backend/src/common/utils"
 	"net/http"
 
@@ -21,7 +22,7 @@ func Create(ctx *gin.Context, provider apps.Provider) {
 	if ok := utils.ValidateRequestBody(ctx, &dto); !ok {
 		return
 	}
-	if _, err := appService.FindOne(provider.DB.Where("host_name = ?", dto.HostName)); err == nil {
+	if _, err := appService.FindOne(provider.DB, &models.App{HostName: dto.HostName}); err == nil {
 		ctx.AbortWithStatusJSON(422, gin.H{"errors": gin.H{"host_name": "host_name already exists"}})
 		return
 	}
